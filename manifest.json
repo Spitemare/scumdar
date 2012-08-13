@@ -1,0 +1,21 @@
+﻿{
+    "manifest_version": 2,
+    "name": "MTGS Mafia tools",
+    "version": "1.0",
+    "description": "Handy stuff for mafia on MTGS",
+    "icons": {
+      "128": "img/icon-128.png",
+      "48": "img/icon-48.png"
+   },
+   "content_scripts": [
+       {
+           "js": [ "js/jquery-1.7.2.min.js", "js/content.js" ],
+           "css": [ "css/content.css" ],
+           "matches": [ "http://forums.mtgsalvation.com/*" ]
+       }
+   ],
+   "background": {
+       "scripts": [ "js/jquery-1.7.2.min.js", "js/background.js" ]
+   },
+   "web_accessible_resources": [ "img/star.gif", "img/unstar.gif" ]
+}

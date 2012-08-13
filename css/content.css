@@ -1,0 +1,12 @@
+img.mafia-tools {
+    cursor: pointer;
+}
+
+img.star-game {
+    cursor: pointer;
+}
+
+input.note-input {
+    width: 100%;
+    border: 1px solid black;
+}
