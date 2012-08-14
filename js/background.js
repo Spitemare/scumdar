@@ -1,4 +1,6 @@
 (function($, undefined) {
+    var background = {};
+
     function saveGame(game) {
         localStorage[game.id] = JSON.stringify(game);
     }
@@ -15,7 +17,7 @@
         }
     }
 
-    function load(port, msg) {
+    background.load = function(msg, port) {
         var game = loadGame(msg.gameId);
         port.postMessage({
             type: 'load',
@@ -23,7 +25,7 @@
         });
     }
 
-    function save(port, msg) {
+    background.save = function(msg, port) {
         saveGame(msg.game);
         port.postMessage({
             type: 'save',
@@ -31,7 +33,7 @@
         });
     }
 
-    function list(port, msg) {
+    background.list = function(msg, port) {
         var games = [];
         for (gameId in localStorage) {
             var game = loadGame(gameId);
@@ -47,13 +49,7 @@
 
     chrome.extension.onConnect.addListener(function(port) {
         port.onMessage.addListener(function(msg) {
-            if (msg.type == 'load') {
-                load(port, msg);
-            } else if (msg.type == 'save') {
-                save(port, msg);
-            } else if (msg.type == 'list') {
-                list(port, msg);
-            }
-        });
+            background[msg.type](msg, port);
+         });
     });
 }(jQuery));

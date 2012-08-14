@@ -3,6 +3,7 @@
     var game;
     var unstar = chrome.extension.getURL('img/unstar.gif');
     var star = chrome.extension.getURL('img/star.gif');
+    var content = {};
 
     function gup(url, name) {
         name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -80,15 +81,29 @@
         $note.hide();
     }
 
+    function addPoints(points, userId) {
+        var user = game.users[userId] || {};
+        if (user.points === undefined) {
+            user.points = 0;
+        }
+        user.id = userId;
+        user.points = user.points + points;
+        game.users[userId] = user;
+        save();
+        $('span.tracker-total[userId="' + userId + '"]').each(function(index) {
+            $(this).text(user.points);
+        });
+    }
+
     function inject() {
-        $('td.navbar>strong').append('<img class="star-game" star="false" src=' + unstar + '></img>');
+        $('td.navbar>strong').append('<img class="star-game pointer" star="false" src=' + unstar + '></img>');
         $('img.star-game').click(function() {
             toggleGameStar($(this));
         });
         $('a[name][rel="nofollow"]').each(function(index) {
             var postId = gup($(this).attr('href'), 'p');
             var $parent = $(this).parent();
-            $parent.append('<img postId="' + postId + '" class="star-post mafia-tools" star="false" src=' + unstar + '></img>');
+            $parent.append('<img postId="' + postId + '" class="star-post mafia-tools pointer" star="false" src=' + unstar + '></img>');
             $parent.find('img.star-post').click(function() {
                 togglePostStar($(this), postId);
             });
@@ -128,6 +143,15 @@
         $('div[id^="postmenu_"]').remove('.vbmenu_popup').parent().each(function(index) {
             var $this = $(this);
             var userId = gup($this.find('a.bigusername').attr('href'), 'u');
+            var pointTracker = '<div class="mafia-tools"><span class="plus-tracker pointer">+</span> <span class="minus-tracker pointer">-</span> = <span class="tracker-total" userId="' + userId + '">0</span></div>';
+            $this.append(pointTracker);
+            $this.find('.plus-tracker').click(function() {
+                addPoints(1, userId);
+            });
+            $this.find('.minus-tracker').click(function() {
+                addPoints(-1, userId);
+            });
+
             var userOptions = '<select userId="' + userId + '" type="select" class="mark-user mafia-tools">' +
                                 '<option value="unknown">Unknown</option>' +
                                 '<option value="mod">Mod</option>' +
@@ -139,14 +163,15 @@
                 changeUserMark($(this).val(), userId);
             });
         });
-                $('table[id^="post"]>tbody').each
         if (!game.star) {
             $('.mafia-tools').hide();
         }
     }
 
     function restore() {
-        $('img.star-game').attr('star', 'true').attr('src', star);
+        if (game.star) {
+            $('img.star-game').attr('star', 'true').attr('src', star);
+        }
         for (postId in game.posts) {
             var post = game.posts[postId];
             if (post.star) {
@@ -165,10 +190,21 @@
             $user.each(function(index) {
                 $(this).val(user.mark);
             });
+            $user = $('span.tracker-total[userId="' + user.id + '"]');
+            console.log($user.length);
+            $user.each(function(index) {
+                $(this).text(user.points);
+            });
         }
     }
 
-    function list(msg) {
+    content.load = function(msg) {
+        game = msg.game;
+        inject();
+        restore();
+    }
+
+    content.list = function(msg) {
         $(msg.games).each(function(index, gameId) {
             var $game = $('td[id="td_threadtitle_' + gameId + '"]');
             if ($game.length > 0) {
@@ -178,17 +214,11 @@
     }
 
     function init() {
-        var gameId = gup($('a[href^="printthread.php?t="]').attr('href'), 't');
         port = chrome.extension.connect();
         port.onMessage.addListener(function(msg) {
-            if (msg.type == 'load') {
-                game = msg.game;
-                inject();
-                restore();
-            } else if (msg.type == 'list') {
-                list(msg);
-            }
+            content[msg.type](msg);
         });
+        var gameId = gup($('a[href^="printthread.php?t="]').attr('href'), 't');
         if (gameId != '') {
             port.postMessage({
                 type: 'load',
