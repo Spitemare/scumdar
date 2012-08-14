@@ -63,7 +63,18 @@
         }
         game.users[userId] = user;
         save();
-        $('select.mark-user[userId="' + userId + '"]').val(mark);
+        $user = $('select.mark-user[userId="' + userId + '"]');
+        $user.val(mark);
+        if (mark == 'town') {
+            $user.addClass('color-town');
+            $user.removeClass('color-scum');
+        } else if (mark == 'scum') {
+            $user.addClass('color-scum');
+            $user.removeClass('color-town');
+        } else {
+            $user.removeClass('color-town');
+            $user.removeClass('color-scum');
+        }
     }
 
     function changeNote($note, postId) {
