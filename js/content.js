@@ -86,13 +86,33 @@
         if (user.points === undefined) {
             user.points = 0;
         }
+        if (user.points == 5 && points > 0) {
+            return;
+        }
+        if (user.points == -5 && points < 0) {
+            return;
+        }
         user.id = userId;
         user.points = user.points + points;
         game.users[userId] = user;
         save();
         $('span.tracker-total[userId="' + userId + '"]').each(function(index) {
-            $(this).text(user.points);
+            var $this = $(this);
+            $this.text(user.points);
+            colorizePoints($this);
         });
+    }
+
+    function colorizePoints($points) {
+       var points = $points.text();
+       if (points >= 5) {
+           $points.addClass('color-town');
+       } else if (points <= -5) {
+           $points.addClass('color-scum');
+       } else {
+           $points.removeClass('color-town');
+           $points.removeClass('color-scum');
+       }
     }
 
     function inject() {
@@ -193,7 +213,9 @@
             $user = $('span.tracker-total[userId="' + user.id + '"]');
             console.log($user.length);
             $user.each(function(index) {
-                $(this).text(user.points);
+                var $this = $(this);
+                $this.text(user.points);
+                colorizePoints($this);
             });
         }
     }
