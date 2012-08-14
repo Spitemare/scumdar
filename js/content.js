@@ -246,7 +246,12 @@
         $(msg.games).each(function(index, gameId) {
             var $game = $('td[id="td_threadtitle_' + gameId + '"]');
             if ($game.length > 0) {
-                $game.find('span[style="float:right"]').prepend('<img src="' + star + '"></img>');
+                var $span = $game.find('span[style="float:right"]');
+                if ($span.length == 0) {
+                    $game.find('div').filter(':first').append('<span style="float:right"/>');
+                    $span = $game.find('span[style="float:right"]');
+                }
+                $span.prepend('<img src="' + star + '"></img>');
             }
         });
     }
