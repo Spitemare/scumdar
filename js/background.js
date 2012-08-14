@@ -2,6 +2,7 @@
     var background = {};
     background.content = {};
     background.content.games = {};
+    background.popup = {};
 
     function saveGame(game) {
         localStorage[game.id] = JSON.stringify(game);
@@ -23,8 +24,7 @@
         var tabId = port.sender.tab.id;
         var game = loadGame(msg.gameId);
         background.content.games[tabId] = game.id;
-        // Disable this for now.
-        if (false && game.star) {
+        if (game.star) {
             chrome.pageAction.show(tabId);
         }
         port.postMessage({
@@ -57,6 +57,19 @@
 
     background.content.disconnect = function(port) {
         delete background.content.games[port.sender.tab.id];
+    }
+
+    background.popup.load = function(msg, port) {
+        chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+        }, function(tab) {
+            var game = loadGame(background.content.games[tab[0].id]);
+            port.postMessage({
+                type: 'load',
+                game: game
+            });
+        });
     }
 
     chrome.extension.onConnect.addListener(function(port) {

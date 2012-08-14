@@ -1,8 +1,9 @@
 ﻿{
     "manifest_version": 2,
     "name": "Scumdar",
-    "version": "1.0",
+    "version": "1.1",
     "description": "Handy stuff for mafia on MTG Salvation",
+    "permissions": [ "tabs" ],
     "icons": {
       "128": "img/icon-128.png"
     },
@@ -18,7 +19,8 @@
     },
     "page_action": {
         "default_title": "Scumdar",
-        "default_icon": "img/icon-16.png"
+        "default_icon": "img/icon-16.png",
+        "default_popup": "popup.html"
     },
     "web_accessible_resources": [
         "img/star.png",

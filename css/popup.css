@@ -1,0 +1,12 @@
+body {
+    width: 500px;
+}
+
+.hide {
+    display: none;
+}
+
+h4 {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}

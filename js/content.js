@@ -46,9 +46,19 @@
         toggleStar($game);
     }
 
+    function getPostNumber($post, postId) {
+        return $post.parent().find('a[id="postcount' + postId + '"]>strong').text();
+    }
+
+    function getPostAuthor($post) {
+        return $post.parentsUntil('table', 'tbody').find('a.bigusername').text();
+    }
+
     function togglePostStar($post, postId) {
         var post = game.posts[postId] || {};
         post.id = postId;
+        post.number = getPostNumber($post, postId);
+        post.author = getPostAuthor($post);
         post.star = ($post.attr('star') == 'false') ? true : false;
         if (!post.star) {
             delete post.star;
@@ -57,9 +67,14 @@
         toggleStar($post);
     }
 
+    function getUserName(userId) {
+        return $('a.bigusername[userId="' + userId + '"]').filter(':first').text();
+    }
+
     function changeUserMark(mark, userId) {
         var user = game.users[userId] || {};
         user.id = userId;
+        user.name = getUserName(userId);
         user.mark = mark;
         if (mark == 'unknown') {
             delete user.mark;
@@ -108,6 +123,7 @@
             return;
         }
         user.id = userId;
+        user.name = getUserName(userId);
         user.points = user.points + points;
         game.users[userId] = user;
         save();
@@ -138,6 +154,7 @@
     function replaceUser(name, userId) {
         var user = game.users[userId] || {};
         user.id = userId;
+        user.name = getUserName(userId);
         var $parent = $('a.bigusername[userId="' + userId + '"]').parent();
         var $replacement = $parent.parent().find('div.replacement');
         var replacement = prompt('Who replaced ' + name + '?');
@@ -162,6 +179,7 @@
         var user = game.users[userId] || {};
         user.dead = !user.dead;
         user.id = userId;
+        user.name = getUserName(userId);
         game.users[userId] = user;
         save();
         if (user.dead) {
@@ -172,7 +190,9 @@
     }
 
     function inject() {
-        $('td.navbar>strong').append('<img class="star-game pointer" star="false" src=' + unstar + '></img>');
+        var $title = $('td.navbar>strong');
+        game.title = $title.text();
+        $title.append('<img class="star-game pointer" star="false" src=' + unstar + '></img>');
         $('img.star-game').click(function() {
             toggleGameStar($(this));
         });
