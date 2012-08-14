@@ -3,6 +3,7 @@
     var game;
     var unstar = chrome.extension.getURL('img/unstar.gif');
     var star = chrome.extension.getURL('img/star.gif');
+    var downArrow = chrome.extension.getURL('img/arrow_down.png');
     var content = {};
 
     function gup(url, name) {
@@ -65,15 +66,16 @@
         save();
         $user = $('select.mark-user[userId="' + userId + '"]');
         $user.val(mark);
+        colorizeUserMark(mark, $user);
+    }
+
+    function colorizeUserMark(mark, $user) {
         if (mark == 'town') {
-            $user.addClass('color-town');
-            $user.removeClass('color-scum');
+            $user.removeClass('color-scum').addClass('color-town');
         } else if (mark == 'scum') {
-            $user.addClass('color-scum');
-            $user.removeClass('color-town');
+            $user.removeClass('color-town').addClass('color-scum');
         } else {
-            $user.removeClass('color-town');
-            $user.removeClass('color-scum');
+            $user.removeClass('color-town color-scum');
         }
     }
 
@@ -131,6 +133,42 @@
         $points.css('color', rgb);
     }
 
+    function replaceUser(name, userId) {
+        var user = game.users[userId] || {};
+        user.id = userId;
+        var $parent = $('a.bigusername[userId="' + userId + '"]').parent();
+        var $replacement = $parent.parent().find('div.replacement');
+        var replacement = prompt('Who replaced ' + name + '?');
+        if (replacement != null && replacement.length > 0) {
+            user.replacement = replacement;
+        } else {
+            delete user.replacement;
+            $replacement.remove();
+            return;
+        }
+        game.users[userId] = user;
+        save();
+        if ($replacement.length == 0) {
+            var text = '<div class="mafia-tools smallfont replacement">Replaced by ' + replacement + '</div>';
+            $parent.after(text);
+        } else {
+            $replacement.text('Replaced by ' + replacement);
+        }
+    }
+
+    function toggleDeadUser(userId) {
+        var user = game.users[userId] || {};
+        user.dead = !user.dead;
+        user.id = userId;
+        game.users[userId] = user;
+        save();
+        if (user.dead) {
+            $('a.bigusername[userId="' + userId + '"]').addClass('dead');
+        } else {
+            $('a.bigusername[userId="' + userId + '"]').removeClass('dead');
+        }
+    }
+
     function inject() {
         $('td.navbar>strong').append('<img class="star-game pointer" star="false" src=' + unstar + '></img>');
         $('img.star-game').click(function() {
@@ -144,7 +182,7 @@
                 togglePostStar($(this), postId);
             });
 
-            $parent.parentsUntil('table', 'tbody').find('a[href^="editpost.php"]').unbind('click').click(function(e) {
+            $parent.parentsUntil('table', 'tbody').find('a[href^="editpost.php"]').click(function(e) {
                 if (game.star) {
                     alert('Editing posts in mafia is forbidden. Be careful.');
                 }
@@ -182,16 +220,68 @@
                 changeNote($(this), $div.attr('id'));
             });
         });
-        $('div[id^="postmenu_"]').remove('.vbmenu_popup').parent().each(function(index) {
+        $('div[id^="postmenu_"]').filter(':not(.vbmenu_popup)').parent().each(function(index) {
             var $this = $(this);
-            var userId = gup($this.find('a.bigusername').attr('href'), 'u');
-            var pointTracker = '<div class="mafia-tools"><span class="plus-tracker pointer">+</span> <span class="minus-tracker pointer">-</span> = <span class="tracker-total" userId="' + userId + '">0</span></div>';
+            var $user = $this.find('a.bigusername');
+            var userId = gup($user.attr('href'), 'u');
+            $user.attr('userId', userId);
+
+            var pointTracker = '<div class="mafia-tools point-tracker"><span class="plus-tracker pointer">+</span> <span class="minus-tracker pointer">-</span> = <span class="tracker-total" userId="' + userId + '">0</span></div>';
             $this.append(pointTracker);
             $this.find('.plus-tracker').click(function() {
                 addPoints(1, userId);
             });
             $this.find('.minus-tracker').click(function() {
                 addPoints(-1, userId);
+            });
+
+            $this.find('span.tracker-total[userId="' + userId + '"]').after('<span><img class="mafia-tools menu-arrow pointer" src="' + downArrow + '"></img></span>');
+            $this.find('img.menu-arrow').click(function(e) {
+                var $menu = $this.find('div.user-menu');
+                if ($this.find('div.user-menu').length == 0) {
+                    var menu = '<div class="mafia-tools user-menu vbmenu_popup" style="display: none">' +
+                                '<table cellpadding="4" cellspacing="1" border="0">' +
+                                    '<tbody>' +
+                                        '<tr>' +
+                                            '<td class="thead">Mafia Tools</td>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                            '<td class="vbmenu_option vbmenu_option_alink">' +
+                                                '<a href="#" class="replacement-link">Replace User</a>' +
+                                            '</td>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                            '<td class="vbmenu_option vbmenu_option_alink">' +
+                                                '<a href="#" class="kill-link">Kill/Unkill User</a>' +
+                                            '</td>' +
+                                        '</tr>' +
+                                    '</tbody>' +
+                                '</table>' +
+                               '</div>';
+                    $this.append(menu);
+                    $menu = $this.find('div.user-menu');
+                    $menu.find('td').filter(':not(.thead)').hover(function() {
+                        $(this).removeClass('vbmenu_option vbmenu_option_alink').addClass('vbmenu_hilite vbmenu_hilite_alink');
+                    }, function() {
+                        $(this).removeClass('vbmenu_hilite vbmenu_hilite_alink').addClass('vbmenu_option vbmenu_option_alink');
+                    });
+                    $menu.find('a.replacement-link').click(function(e) {
+                        e.preventDefault();
+                        replaceUser($user.text(), userId);
+                        $menu.hide();
+                    });
+                    $menu.find('a.kill-link').click(function(e) {
+                        e.preventDefault();
+                        toggleDeadUser(userId);
+                        $menu.hide();
+                    });
+                    var pos = $(this).position();
+                    $menu.css({
+                        'left': pos.left + 5,
+                        'top': pos.top + 15
+                    });
+                }
+                $menu.toggle();
             });
 
             var userOptions = '<select userId="' + userId + '" type="select" class="mark-user mafia-tools">' +
@@ -208,6 +298,13 @@
         if (!game.star) {
             $('.mafia-tools').hide();
         }
+
+        $(document).mouseup(function(e) {
+            var container = $('div.user-menu');
+            if (container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
     }
 
     function restore() {
@@ -230,7 +327,9 @@
             var user = game.users[userId];
             var $user = $('select.mark-user[userId="' + user.id + '"]');
             $user.each(function(index) {
-                $(this).val(user.mark);
+                var $this = $(this);
+                $this.val(user.mark);
+                colorizeUserMark(user.mark, $this);
             });
             $user = $('span.tracker-total[userId="' + user.id + '"]');
             $user.each(function(index) {
@@ -238,11 +337,19 @@
                 $this.text(user.points);
                 colorizePoints($this);
             });
+            if (user.dead) {
+                $('a.bigusername[userId="' + user.id + '"]').addClass('dead');
+            }
+            if (user.replacement !== undefined && user.replacement.length > 0) {
+                var text = '<div class="mafia-tools smallfont replacement">Replaced by ' + user.replacement + '</div>';
+                $('a.bigusername[userId="' + user.id + '"]').parent().after(text);
+            }
         }
     }
 
     content.load = function(msg) {
         game = msg.game;
+        console.log(game);
         inject();
         restore();
     }

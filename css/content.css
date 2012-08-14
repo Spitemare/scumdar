@@ -7,3 +7,27 @@ input.note-input {
     border: 1px solid black;
 }
 
+div.user-menu {
+    position: absolute;
+    z-index: 50;
+}
+
+img.menu-arrow {
+    margin: 5px;
+}
+
+div.replacement {
+    font-style: italic;
+}
+
+.color-town {
+    color: #22229C;
+}
+
+.color-scum {
+    color: #FF0000;
+}
+
+.dead {
+    text-decoration: line-through;
+}
