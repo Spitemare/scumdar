@@ -139,6 +139,12 @@
                 togglePostStar($(this), postId);
             });
 
+            $parent.parentsUntil('table', 'tbody').find('a[href^="editpost.php"]').unbind('click').click(function(e) {
+                if (game.star) {
+                    alert('Editing posts in mafia is forbidden. Be careful.');
+                }
+            });
+
             var $table = $parent.parentsUntil('div[id^="edit' + postId + '"]', 'table');
             var note = '<tr class="mafia-tools">';
             if ($table.find('tr').filter(':first').find('td').length > 1) {
@@ -222,7 +228,6 @@
                 $(this).val(user.mark);
             });
             $user = $('span.tracker-total[userId="' + user.id + '"]');
-            console.log($user.length);
             $user.each(function(index) {
                 var $this = $(this);
                 $this.text(user.points);
