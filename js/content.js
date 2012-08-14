@@ -97,10 +97,10 @@
         if (user.points === undefined) {
             user.points = 0;
         }
-        if (user.points == 5 && points > 0) {
+        if (user.points == 25 && points > 0) {
             return;
         }
-        if (user.points == -5 && points < 0) {
+        if (user.points == -25 && points < 0) {
             return;
         }
         user.id = userId;
@@ -115,15 +115,20 @@
     }
 
     function colorizePoints($points) {
-       var points = $points.text();
-       if (points >= 5) {
-           $points.addClass('color-town');
-       } else if (points <= -5) {
-           $points.addClass('color-scum');
-       } else {
-           $points.removeClass('color-town');
-           $points.removeClass('color-scum');
-       }
+        var val = $points.text();
+        if (val == 0) {
+            $points.css('color', 'black');
+            return;
+        }
+        var norm = (Math.abs(val) + 25) / 50;
+        var rgb;
+        var round = Math.round(norm * 255);
+        if (val < 0) {
+            rgb = 'rgb('+round+',0,0)';
+        } else {
+            rgb = 'rgb(0,0,'+round+')';
+        }
+        $points.css('color', rgb);
     }
 
     function inject() {
