@@ -257,9 +257,13 @@
     }
 
     function init() {
-        port = chrome.extension.connect();
+        port = chrome.extension.connect({
+            name: 'content'
+        });
         port.onMessage.addListener(function(msg) {
-            content[msg.type](msg);
+            if (content[msg.type]) {
+                content[msg.type](msg);
+            }
         });
         var gameId = gup($('a[href^="printthread.php?t="]').attr('href'), 't');
         if (gameId != '') {

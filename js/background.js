@@ -1,5 +1,7 @@
 (function($, undefined) {
     var background = {};
+    background.content = {};
+    background.content.games = {};
 
     function saveGame(game) {
         localStorage[game.id] = JSON.stringify(game);
@@ -17,15 +19,21 @@
         }
     }
 
-    background.load = function(msg, port) {
+    background.content.load = function(msg, port) {
+        var tabId = port.sender.tab.id;
         var game = loadGame(msg.gameId);
+        background.content.games[tabId] = game.id;
+        // Disable this for now.
+        if (false && game.star) {
+            chrome.pageAction.show(tabId);
+        }
         port.postMessage({
             type: 'load',
             game: game
         });
     }
 
-    background.save = function(msg, port) {
+    background.content.save = function(msg, port) {
         saveGame(msg.game);
         port.postMessage({
             type: 'save',
@@ -33,7 +41,7 @@
         });
     }
 
-    background.list = function(msg, port) {
+    background.content.list = function(msg, port) {
         var games = [];
         for (gameId in localStorage) {
             var game = loadGame(gameId);
@@ -47,9 +55,20 @@
         });
     }
 
+    background.content.disconnect = function(port) {
+        delete background.content.games[port.sender.tab.id];
+    }
+
     chrome.extension.onConnect.addListener(function(port) {
         port.onMessage.addListener(function(msg) {
-            background[msg.type](msg, port);
-         });
+            if (background[port.name][msg.type]) {
+                background[port.name][msg.type](msg, port);
+            }
+        });
+        port.onDisconnect.addListener(function() {
+            if (background[port.name].disconnect) {
+                background[port.name].disconnect(port);
+            }
+        });
     });
 }(jQuery));
