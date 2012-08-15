@@ -260,7 +260,7 @@
                                 '<table cellpadding="4" cellspacing="1" border="0">' +
                                     '<tbody>' +
                                         '<tr>' +
-                                            '<td class="thead">Mafia Tools</td>' +
+                                            '<td class="thead">Scumdar</td>' +
                                         '</tr>' +
                                         '<tr>' +
                                             '<td class="vbmenu_option vbmenu_option_alink">' +

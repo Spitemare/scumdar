@@ -1,4 +1,4 @@
-mafia-tools
-===========
+Scumdar
+=======
 
-Chrome Mafia Tools
+Handy stuff for mafia on MTG Salvation
