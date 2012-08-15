@@ -21,5 +21,11 @@
         "default_title": "MTGS Mafia Tools",
         "default_icon": "img/icon-16.png"
     },
-    "web_accessible_resources": [ "img/star.gif", "img/unstar.gif", "img/arrow_down.png" ]
+    "web_accessible_resources": [
+        "img/star.png",
+        "img/unstar.png",
+        "img/arrow_down.png",
+        "img/plus.png",
+        "img/minus.png"
+    ]
 }

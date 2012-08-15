@@ -1,9 +1,11 @@
 (function($, undefined) {
     var port;
     var game;
-    var unstar = chrome.extension.getURL('img/unstar.gif');
-    var star = chrome.extension.getURL('img/star.gif');
-    var downArrow = chrome.extension.getURL('img/arrow_down.png');
+    const unstar = chrome.extension.getURL('img/unstar.png');
+    const star = chrome.extension.getURL('img/star.png');
+    const downArrow = chrome.extension.getURL('img/arrow_down.png');
+    const plus = chrome.extension.getURL('img/plus.png');
+    const minus = chrome.extension.getURL('img/minus.png');
     var content = {};
 
     function gup(url, name) {
@@ -226,7 +228,11 @@
             var userId = gup($user.attr('href'), 'u');
             $user.attr('userId', userId);
 
-            var pointTracker = '<div class="mafia-tools point-tracker"><span class="plus-tracker pointer">+</span> <span class="minus-tracker pointer">-</span> = <span class="tracker-total" userId="' + userId + '">0</span></div>';
+            var pointTracker = '<div class="mafia-tools point-tracker">' +
+                                    '<img class="plus-tracker pointer" src="' + plus + '"></img> ' +
+                                    '<span class="tracker-total" userId="' + userId + '">0</span> ' +
+                                    '<img class="minus-tracker pointer" src="' + minus + '"></img>' +
+                               '</div>';
             $this.append(pointTracker);
             $this.find('.plus-tracker').click(function() {
                 addPoints(1, userId);
@@ -235,7 +241,18 @@
                 addPoints(-1, userId);
             });
 
-            $this.find('span.tracker-total[userId="' + userId + '"]').after('<span><img class="mafia-tools menu-arrow pointer" src="' + downArrow + '"></img></span>');
+            var userOptions = '<select userId="' + userId + '" type="select" class="mark-user mafia-tools">' +
+                                '<option value="unknown">Unknown</option>' +
+                                '<option value="mod">Mod</option>' +
+                                '<option value="town">Town</option>' +
+                                '<option value="scum">Scum</option>' +
+                              '</select>';
+            $this.append(userOptions);
+            $this.find('select.mark-user').change(function() {
+                changeUserMark($(this).val(), userId);
+            });
+
+            $this.find('select.mark-user[userId="' + userId + '"]').after('<span><img class="mafia-tools menu-arrow pointer" src="' + downArrow + '"></img></span>');
             $this.find('img.menu-arrow').click(function(e) {
                 var $menu = $this.find('div.user-menu');
                 if ($this.find('div.user-menu').length == 0) {
@@ -284,16 +301,7 @@
                 $menu.toggle();
             });
 
-            var userOptions = '<select userId="' + userId + '" type="select" class="mark-user mafia-tools">' +
-                                '<option value="unknown">Unknown</option>' +
-                                '<option value="mod">Mod</option>' +
-                                '<option value="town">Town</option>' +
-                                '<option value="scum">Scum</option>' +
-                              '</select>';
-            $this.append(userOptions);
-            $this.find('select.mark-user').change(function() {
-                changeUserMark($(this).val(), userId);
-            });
+
         });
         if (!game.star) {
             $('.mafia-tools').hide();
