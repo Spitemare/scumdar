@@ -25,11 +25,27 @@ div.replacement {
 }
 
 .color-town {
-    color: #22229C;
+    color: Blue;
 }
 
 .color-scum {
-    color: #FF0000;
+    color: Red;
+}
+
+.color-neutral {
+    color: DarkSlateGrey;
+}
+
+.color-cult {
+    color: Purple;
+}
+
+.color-other {
+    color: Magenta;
+}
+
+.color-sk {
+    color: DarkGreen;
 }
 
 .dead {

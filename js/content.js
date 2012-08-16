@@ -87,13 +87,11 @@
     }
 
     function colorizeUserMark(mark, $user) {
-        if (mark == 'town') {
-            $user.removeClass('color-scum').addClass('color-town');
-        } else if (mark == 'scum') {
-            $user.removeClass('color-town').addClass('color-scum');
-        } else {
-            $user.removeClass('color-town color-scum');
+        $user.removeClass().addClass('mark-user mafia-tools');
+        if (mark == 'unknown') {
+            return;
         }
+        $user.addClass('color-' + mark)
     }
 
     function changeNote($note, postId) {
@@ -266,6 +264,10 @@
                                 '<option value="mod">Mod</option>' +
                                 '<option value="town">Town</option>' +
                                 '<option value="scum">Scum</option>' +
+                                '<option value="neutral">Neutral</option>' +
+                                '<option value="cult">Cult</option>' +
+                                '<option value="sk">Serial Killer</option>' +
+                                '<option value="other">Other</option>' +
                               '</select>';
             $this.append(userOptions);
             $this.find('select.mark-user').change(function() {
