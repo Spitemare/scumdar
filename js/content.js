@@ -293,7 +293,7 @@
             $this.find('select.mark-user[userId="' + userId + '"]').after('<div class="mafia-tools user-note" userId="' + userId +'"><i><small>User note</small></i>');
             $this.find('div.user-note').click(function(index) {
                 var $div = $(this);
-                var input = '<textarea rows="5" class="user-note" default="true" userId="' + userId + '"></textarea>';
+                var input = '<textarea rows="5" class="user-note" placeholder="Ctrl+Enter to save" default="true" userId="' + userId + '"></textarea>';
                 $div.after(input);
                 $div.hide();
                 var $input = $div.parent().find('textarea.user-note');
