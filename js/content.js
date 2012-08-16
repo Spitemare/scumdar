@@ -94,19 +94,35 @@
         $user.addClass('color-' + mark)
     }
 
-    function changeNote($note, postId) {
+    function changePostNote($note, postId) {
         var post = game.posts[postId] || {};
         post.id = postId;
         var note = $note.val();
         post.note = note;
         if (note.length == 0) {
             delete post.note;
-            note = 'Type here to add a note';
+            note = 'Post note';
         }
         game.posts[postId] = post;
         save();
-        $note.parent().find('div.post-note').html('<i><small>' + note + '</small></i>').attr('default', 'false').show();
-        $note.hide();
+        $note.parent().find('div.post-note').html('<i><small>' + note + '</small></i>').attr('default', post.note ? 'false' : 'true').show();
+        $note.remove();
+    }
+
+    function changeUserNote($note, userId) {
+        var user = game.users[userId] || {};
+        user.id = userId;
+        user.name = getUserName(userId);
+        var note = $note.val();
+        user.note = note;
+        if (note.length == 0) {
+            delete user.note;
+            note = 'User note';
+        }
+        game.users[userId] = user;
+        save();
+        $('div.user-note[userId="' + userId + '"]').html('<i><small>' + note + '</small></i>').attr('default', user.note ? 'false' : 'true').show();
+        $note.remove();
     }
 
     function addPoints(points, userId) {
@@ -215,7 +231,7 @@
                 $table.find('tr').filter(':last').find('td').filter(':first').css('border-bottom', '0px');
             }
             note = note + '<td class="alt1" style="border: 1px solid #D1D1E1; border-left: 0px; border-top: 0px">' +
-                            '<div class="post-note" default="true" id="' + postId + '"><i><small>Type here to add a note</small></i>' +
+                            '<div class="post-note" default="true" id="' + postId + '"><i><small>Post note</small></i>' +
                           '</td>';
             $table.append(note);
         });
@@ -237,7 +253,7 @@
             });
             $input.focus();
             $input.change(function() {
-                changeNote($(this), $div.attr('id'));
+                changePostNote($(this), $div.attr('id'));
             });
         });
         $('div[id^="postmenu_"]').filter(':not(.vbmenu_popup)').parent().each(function(index) {
@@ -274,7 +290,32 @@
                 changeUserMark($(this).val(), userId);
             });
 
-            $this.find('select.mark-user[userId="' + userId + '"]').after('<span><img class="mafia-tools menu-arrow pointer" src="' + downArrow + '"></img></span>');
+            $this.find('select.mark-user[userId="' + userId + '"]').after('<div class="mafia-tools user-note" userId="' + userId +'"><i><small>User note</small></i>');
+            $this.find('div.user-note').click(function(index) {
+                var $div = $(this);
+                var input = '<textarea rows="5" class="user-note" default="true" userId="' + userId + '"></textarea>';
+                $div.after(input);
+                $div.hide();
+                var $input = $div.parent().find('textarea.user-note');
+                if ($div.attr('default') != 'true') {
+                    $input.val($div.text());
+                }
+                $input.keyup(function(e) {
+                    if (e.which == 27) {
+                        e.preventDefault();
+                        $input.hide();
+                        $div.show();
+                    } else if (e.which == 13 && event.ctrlKey) {
+                        changeUserNote($(this), $div.attr('userId'));
+                    }
+                });
+                $input.change(function() {
+                    changeUserNote($(this), $div.attr('userId'));
+                });
+                $input.focus();
+            });
+
+            $this.find('select.mark-user[userId="' + userId + '"]').after('<span class="mafia-tools"><img class="menu-arrow pointer" src="' + downArrow + '"></img></span>');
             $this.find('img.menu-arrow').click(function(e) {
                 var $menu = $this.find('div.user-menu');
                 if ($this.find('div.user-menu').length == 0) {
@@ -322,9 +363,8 @@
                 }
                 $menu.toggle();
             });
-
-
         });
+
         if (!game.star) {
             $('.mafia-tools').hide();
         }
@@ -374,12 +414,14 @@
                 var text = '<div class="mafia-tools smallfont replacement">Replaced by ' + user.replacement + '</div>';
                 $('a.bigusername[userId="' + user.id + '"]').parent().after(text);
             }
+            if (user.note) {
+                $('div.user-note[userId="' + user.id + '"]').html('<i><small>' + user.note + '</small></i>').attr('default', 'false');
+            }
         }
     }
 
     content.load = function(msg) {
         game = msg.game;
-        console.log(game);
         inject();
         restore();
     }

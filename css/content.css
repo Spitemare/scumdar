@@ -11,6 +11,10 @@ input.note-input {
     border: 1px solid black;
 }
 
+textarea.user-note {
+    border: 1px solid black;
+}
+
 div.user-menu {
     position: absolute;
     z-index: 50;
