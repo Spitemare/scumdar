@@ -55,6 +55,15 @@
         });
     }
 
+    background.content.togglePageAction = function(msg, port) {
+        var tabId = port.sender.tab.id;
+        if (msg.star) {
+            chrome.pageAction.show(tabId);
+        } else {
+            chrome.pageAction.hide(tabId);
+        }
+    }
+
     background.content.disconnect = function(port) {
         delete background.content.games[port.sender.tab.id];
     }

@@ -34,6 +34,10 @@
             $obj.attr('star', 'false').attr('src', unstar);
         }
         save();
+        port.postMessage({
+            type: 'togglePageAction',
+            star: $obj.attr('star') == 'true'
+        });
     }
 
     function toggleGameStar($game) {
