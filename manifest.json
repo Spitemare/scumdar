@@ -1,9 +1,9 @@
 ﻿{
     "manifest_version": 2,
     "name": "Scumdar",
-    "version": "1.2.2",
+    "version": "2.0",
     "description": "Handy stuff for mafia on MTG Salvation",
-    "permissions": [ "tabs" ],
+    "permissions": [ "tabs", "storage" ],
     "icons": {
       "128": "img/icon-128.png",
       "48": "img/icon-48.png",
@@ -11,24 +11,15 @@
     },
     "content_scripts": [
         {
-            "js": [ "js/jquery-1.7.2.min.js", "js/content.js" ],
+            "js": [ "js/jquery-1.7.2.min.js", "js/waypoints.min.js", "js/content.js" ],
             "css": [ "css/content.css" ],
-            "matches": [ "http://forums.mtgsalvation.com/*" ],
+            "matches": [ "http://forums.mtgsalvation.com/*", "http://forums.mtgdarkness.com/*" ],
             "run_at": "document_start"
         }
     ],
-    "background": {
-        "scripts": [ "js/jquery-1.7.2.min.js", "js/background.js" ]
-    },
-    "page_action": {
-        "default_title": "Scumdar",
-        "default_icon": "img/icon-16.png",
-        "default_popup": "popup.html"
-    },
     "web_accessible_resources": [
         "img/star.png",
         "img/unstar.png",
-        "img/arrow_down.png",
         "img/plus.png",
         "img/minus.png"
     ]

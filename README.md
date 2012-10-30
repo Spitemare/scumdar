@@ -12,8 +12,8 @@ So Scumar includes some useful stuff that hopefully makes your mafia bookkeeping
 * Make notes on individual posts
 * Identify players as town, scum, cult, etc.
 * Make notes on individual players
-* Mark a player as dead or replaced (and with who replaced that player)
 * Point users from -25 to +25
+* Autoload next page
 
 Hopefully with all of these features you won't get confused about who is what in your mafia games anymore.
 
