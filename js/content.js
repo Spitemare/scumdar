@@ -90,7 +90,7 @@
         user.points = 0;
         user.mark = 'unknown';
         user.name = context.closest('.user').find('.bigusername').text();
-        $('select.mafia-tools').append('<option value="' + user.name + '">' + user.name +
+        $('#scumdar select.mafia-tools').append('<option value="' + user.name + '">' + user.name +
                 '</option>');
         game.users['user' + id] = user;
         save();
