@@ -193,7 +193,7 @@
             });
 
             var $note = $user.append(
-                '<div class="user-note">' +
+                '<div class="mafia-tools user-note">' +
                     '<a href="#">[Edit User Note]</a>' +
                     '<span class="note" />' +
                     '<div class="note-input">' +
