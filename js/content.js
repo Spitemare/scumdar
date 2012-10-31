@@ -3,6 +3,8 @@
     const star = chrome.extension.getURL('img/star.png');
     const plus = chrome.extension.getURL('img/plus.png');
     const minus = chrome.extension.getURL('img/minus.png');
+    const pin = chrome.extension.getURL('img/pin.png');
+    const unpin = chrome.extension.getURL('img/unpin.png');
 
     var game;
 
@@ -274,6 +276,7 @@
                         game.posts = {};
                         game.users = {};
                         game.star = false;
+                        game.pin = true;
                     }
                     game.id = id;
                     return self.scumdar('inject');
@@ -311,7 +314,7 @@
         inject : function() {
             var $scumdar = $('#poststop ~ table').last().waypoint({
                 handler : function(event, direction) {
-                    $(this).toggleClass('sticky', direction === 'down');
+                    $(this).toggleClass('sticky', game.star && game.pin && direction === 'down');
                     event.stopPropagation();
                 },
                 onlyOnScroll : true
@@ -341,6 +344,15 @@
                 }
             });
 
+            $tools.prepend('<td class="tcat mafia-tools"><img class="pin-game pointer" src=' + unpin + '></img></td>');
+            $tools.find('img.pin-game').on('click.scumdar', function() {
+                game.pin = !game.pin;
+                $(this).attr('src', game.pin ? pin : unpin);
+                if (!game.pin) {
+                    $('#scumdar').removeClass('sticky');
+                }
+                save();
+            });
 
             $tools.prepend('<td class="tcat"><img class="star-game pointer" src=' + unstar + '></img></td>');
             $tools.find('img.star-game').on('click', function() {
@@ -370,6 +382,8 @@
             } else {
                 $('.mafia-tools').hide();
             }
+            $('img.pin-game').attr('src', game.pin ? pin : unpin);
+
             restorePosts(this);
             restoreUsers(this);
             return this;
