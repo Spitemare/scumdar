@@ -65,7 +65,7 @@
                 var $note = $(this).closest('.mafia-tools').find('.note').hide();
                 $note.next().show().find('textarea').val($note.text()).focus();
             });
-            $tools.find('.save-button').on('click.scumdar', function() {
+            $tools.find('.note-input>.save-button').on('click.scumdar', function() {
                 var $tools = $(this).closest('.post');
                 var $this = $(this);
                 var id = $tools.attr('id');
@@ -77,11 +77,11 @@
                 game.posts[id] = post;
                 save();
                 $tools.find('.note-input').hide();
-                $tools.find('.note').text(note).show();
+                $tools.find('.post-note').text(note).show();
             });
-            $tools.find('.cancel-button').on('click.scumdar', function() {
+            $tools.find('.note-input>.cancel-button').on('click.scumdar', function() {
                 $tools.find('.note-input').hide();
-                $tools.find('.note').show();
+                $tools.find('.post-note').show();
             });
         });
     }
