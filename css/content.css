@@ -67,7 +67,7 @@ div.game-menu {
 .note {
     float: left;
     font-style: italic;
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .note-input {
