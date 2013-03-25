@@ -5,6 +5,7 @@
     const minus = chrome.extension.getURL('img/minus.png');
     const pin = chrome.extension.getURL('img/pin.png');
     const unpin = chrome.extension.getURL('img/unpin.png');
+    const info = chrome.extension.getURL('img/info.png');
 
     var game;
 
@@ -50,9 +51,12 @@
                     '</div>' +
                 '</td>')
             $tools.find('.star-post').on('click.scumdar', function() {
-                var id = $(this).closest('.post').attr('id');
+                var $tools = $(this).closest('.post');
+                var id = $tools.attr('id');
                 var post = game.posts[id] || {};
                 post.id = id;
+                post.user = $tools.find('.bigusername').text();
+                post.num = $tools.find('a[id^="postcount"]').attr('name');
                 post.star = !post.star;
                 game.posts[id] = post;
                 save();
@@ -71,6 +75,8 @@
                 var id = $tools.attr('id');
                 var post = game.posts[id] || {};
                 post.id = id;
+                post.user = $tools.find('.bigusername').text();
+                post.num = $tools.find('a[id^="postcount"]').attr('name');
                 var note = $(this).parent().find('textarea').val();
                 post.note = note;
                 $tools.toggleClass('noted', note.length > 0);
@@ -156,7 +162,7 @@
 
     function colorizeMark(mark, context) {
         context.removeClass().addClass('mark-user mafia-tools');
-        if (mark != 'unknown') {
+        if (mark !== 'unknown') {
             context.addClass('color-' + mark);
         }
     }
@@ -261,6 +267,75 @@
         }
     }
 
+    function infoUsers(panel) {
+        for (var i in game.users) {
+            var user = game.users[i];
+            var $userInfo = $('<div class="user-info"></div>');
+            $userInfo.append('<span class="user-info-name">' + user.name + '</span>');
+            $userInfo.append('<span class="user-info-points tracker-total">' + user.points + '</span>');
+            colorizePoints(user.points, $userInfo.find('.tracker-total'));
+            if (user.mark !== 'unknown') {
+                $userInfo.append('<span class="user-info-mark mark-user">' + user.mark + '</span>');
+                $userInfo.find('.mark-user').addClass('color-' + user.mark);
+            }
+            if (user.note && user.note.length > 0) {
+                $userInfo.append('<div class="user-info-note note">' + user.note + '</div>');
+            }
+            panel.append($userInfo);
+        }
+    }
+
+    function infoStars(panel) {
+        for (var i in game.posts) {
+            var post = game.posts[i];
+            if (post.star) {
+                if (!post.user) {
+                    post.user = 'Unknown';
+                }
+                if (!post.num) {
+                    post.num = 'Unknown';
+                }
+                var $postInfo = $('<div class="post-info"></div>');
+                $postInfo.append('<span class="user-info-name">' + post.user + '</span>');
+                $postInfo.append('<a href="/showthread.php?p=' + post.id.substring(4) + '" class="post-info-num pointer">' + post.num + '</a>');
+                linkPost(post, $postInfo.find('.post-info-num'));
+                panel.append($postInfo);
+            }
+        }
+    }
+
+    function infoNotes(panel) {
+        for (var i in game.posts) {
+            var post = game.posts[i];
+            if (post.note && post.note.length > 0) {
+                if (!post.user) {
+                    post.user = 'Unknown';
+                }
+                if (!post.num) {
+                    post.num = 'Unknown';
+                }
+                var $postInfo = $('<div class="post-info"></div>');
+                $postInfo.append('<span class="user-info-name">' + post.user + '</span>');
+                $postInfo.append('<a href="/showthread.php?p=' + post.id.substring(4) + '" class="post-info-num pointer">' + post.num + '</a>');
+                linkPost(post, $postInfo.find('.post-info-num'));
+                $postInfo.append('<div class="post-info-note note">' + post.note + '</span>');
+                panel.append($postInfo);
+            }
+        }
+    }
+
+    function linkPost(post, link) {
+        link.on('click.scumdar', function(e) {
+            var $post = $('#' + post.id);
+            if ($post.length > 0) {
+                $('html, body').animate({
+                    scrollTop : $post.offset().top
+                }, 500);
+                e.preventDefault();
+            }
+        });
+    }
+
     var methods = {
         init : function(options) {
             var settings = $.extend({
@@ -344,6 +419,38 @@
                 }
             });
 
+            var $info = $('<div class="scumdar-info">'
+                    + '<ul><li class="alt2"><a href="#scumdar-info-users"><span>Users</span></a></li>'
+                    + '<li class="alt2"><a href="#scumdar-info-stars"><span>Starred Posts</span></a></li>'
+                    + '<li class="alt2"><a href="#scumdar-info-notes"><span>Noted Posts</span></a></li></ul>'
+                    + '<div id="scumdar-info-users"></div>'
+                    + '<div id="scumdar-info-stars"></div>'
+                    + '<div id="scumdar-info-notes"></div>'
+                    + '</div>').tabs({
+                        beforeActivate : function(e, ui) {
+                            ui.newPanel.empty();
+                            switch(ui.newPanel.attr('id')) {
+                                case 'scumdar-info-users': infoUsers(ui.newPanel); break;
+                                case 'scumdar-info-stars': infoStars(ui.newPanel); break;
+                                case 'scumdar-info-notes': infoNotes(ui.newPanel); break;
+                            }
+                        },
+                        create : function(e, ui) {
+                            infoUsers(ui.panel);
+                        }
+                    });
+
+            var $infoRow = $tools.parent().append('<tr class="scumdar-info-row"><td colspan="8" class="alt1"></td></tr>').find('tr.scumdar-info-row');
+            $infoRow.find('td').append($info);
+            $tools.prepend('<td class="tcat mafia-tools"><img class="info-game pointer" src=' + info + '></img></td>');
+            $tools.find('img.info-game').on('click.scumdar', function() {
+                if ($infoRow.is(':hidden')) {
+                    $infoRow.fadeIn();
+                } else {
+                    $infoRow.fadeOut();
+                }
+            });
+
             $tools.prepend('<td class="tcat mafia-tools"><img class="pin-game pointer" src=' + unpin + '></img></td>');
             $tools.find('img.pin-game').on('click.scumdar', function() {
                 game.pin = !game.pin;
@@ -371,6 +478,7 @@
                     }
                 }
             });
+
             injectPosts(this);
             injectUsers(this);
             return this.scumdar('restore');

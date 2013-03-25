@@ -86,3 +86,29 @@ div.game-menu {
 .mafia-tools img {
     padding-left: 5px;
 }
+
+.scumdar-info>div {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.scumdar-info-row {
+    display: none;
+}
+
+.user-info, .post-info {
+    clear: both;
+}
+
+.user-info-name {
+    float: left;
+    font-size: 1.5em;
+}
+
+.user-info-mark, .user-info-points, .post-info-num {
+    margin-left: 5px;
+}
+
+.user-info-note, .post-info-note {
+    clear: both;
+}
