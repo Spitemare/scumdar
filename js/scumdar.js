@@ -91,8 +91,8 @@ String.prototype.format = function () {
                                 .format((user.note ? user.note : '' )));
                     $userInfo.find('.scumdar-user-info-points').slider({
                         range : 'min',
-                        min : -25,
-                        max : 25,
+                        min : -5,
+                        max : 5,
                         value : user.points,
                         slide : function (e, ui) {
                             e.preventDefault();
@@ -381,8 +381,8 @@ String.prototype.format = function () {
                     '<td rowspan="3" class="alt1" style="vertical-align:top"><div class="scumdar-post-note">' + (post.note ? post.note : '' ) + '</div></td></tr>');
                 $post.find('.scumdar-user-slider').slider({
                     range : 'min',
-                    min : -25,
-                    max : 25,
+                    min : -5,
+                    max : 5,
                     value : user.points,
                     stop : function (e, ui) {
                         var game = $post.data('game'),
