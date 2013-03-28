@@ -75,3 +75,8 @@
     margin-right: auto;
     background: url(chrome-extension://__MSG_@@extension_id__/img/loading.gif) no-repeat;
 }
+
+.scumdar-frozen {
+    height: 100%;
+    overflow: hidden;
+}

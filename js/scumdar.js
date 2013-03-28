@@ -246,6 +246,7 @@ String.prototype.format = function () {
                 },
                 open : function () {
                     var panel;
+                    $('body').addClass('scumdar-frozen');
                     switch ($('#scumdar-info-tabs').tabs('option', 'active')) {
                         case 1: panel = 'stars'; break;
                         case 2: panel = 'notes'; break;
@@ -255,6 +256,7 @@ String.prototype.format = function () {
                 },
                 close : function () {
                     $(this).removeData('game');
+                    $('body').removeClass('scumdar-frozen');
                 }
             });
             $('#scumdar-info-tabs').tabs({
