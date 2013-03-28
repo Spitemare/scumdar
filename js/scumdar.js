@@ -18,7 +18,8 @@ String.prototype.format = function () {
                 posts : {},
                 users : {},
                 star : false,
-                pin : true
+                pin : true,
+                marks : [ 'unknown', 'town', 'scum', 'mod', 'replaced' ]
             });
             callback(this);
         });
@@ -162,8 +163,6 @@ String.prototype.format = function () {
         this.num = num;
         this.user = user;
     };
-
-    var marks = [ 'unknown', 'town', 'scum', 'neutral', 'cult', 'other', 'mod' ];
 
     var methods = {
         init : function (ops) {
@@ -414,14 +413,22 @@ String.prototype.format = function () {
                     .on('focus.scumdar', function () {
                         $(this).autocomplete('search', '');
                     }).autocomplete({
-                    source : marks,
+                    source : game.marks,
                     minLength : 0,
                     delay : 0,
+                    response : function (e, ui) {
+                        var val = $(this).val();
+                        for (var i in ui.content) {
+                            if (ui.content[i].value == val) return;
+                        }
+                        ui.content.push({ label : val, value : val });
+                    },
                     change : function (e, ui) {
                         if (!ui.item) return;
                         var game = $post.data('game'),
                             user = $post.data('user'),
                             mark = ui.item.value;
+                        if ($.inArray(mark, game.marks) === -1) game.marks.push(mark);
                         user.mark = mark;
                         game.users[user.id] = user;
                         save(game, function () {
