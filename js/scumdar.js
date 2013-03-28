@@ -461,6 +461,12 @@ String.prototype.format = function () {
                 }).button({
                     icons : { primary : 'ui-icon-document' }
                 });
+            }).tooltip({
+                items : '.scumdar-user-note-button',
+                tooltipClass: 'scumdar-info-note',
+                content : function () {
+                    return $(this).closest('.scumdar-post').data('user').note;
+                }
             });
         },
         infinite : function () {
