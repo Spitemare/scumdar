@@ -55,6 +55,7 @@
 
 .scumdar-user-info-name {
     font-weight: bold;
+    cursor: move;
 }
 
 .scumdar-user-info-mark,

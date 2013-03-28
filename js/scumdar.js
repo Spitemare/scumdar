@@ -29,6 +29,12 @@ String.prototype.format = function () {
     }
 
     function save(game, callback) {
+        for (var i in game.users) {
+            if (!game.users[i]) delete game.users[i];
+        }
+        for (var j in game.posts) {
+            if (!game.posts[i]) delete game.posts[i];
+        }
         var o = {};
         o[game.id] = game;
         chrome.storage.local.set(o, function () {
@@ -67,9 +73,17 @@ String.prototype.format = function () {
         panel.empty();
         switch(panel.attr('id')) {
             case 'scumdar-info-tabs-users':
+                var users = [];
                 for (var i in game.users) {
-                    var user = game.users[i],
-                        $userInfo = $('<div class="scumdar-user-info"></div>');
+                    users.push(game.users[i]);
+                }
+                users.sort(function (a, b) {
+                    if (a.order == undefined || b.order == undefined) return 0;
+                    return a.order - b.order;
+                });
+                for (var i in users) {
+                    var user = users[i],
+                        $userInfo = $('<div class="scumdar-user-info"></div>').data('user', user);
                     $userInfo.append('<span class="scumdar-user-info-name">{0}</span>'.format(user.name))
                         .append('<span class="scumdar-user-info-mark">{0}</span>'.format(user.mark))
                         .append('<div class="scumdar-user-info-points"></div>')
@@ -86,6 +100,21 @@ String.prototype.format = function () {
                     });
                     panel.append($userInfo);
                 }
+                $('#scumdar-info-tabs-users').sortable({
+                    axis : 'y',
+                    handle : '.scumdar-user-info-name',
+                    helper : function (e, el) {
+                        var clone = el.clone();
+                        clone.find('.scumdar-info-note').hide();
+                        return clone;
+                    },
+                    stop : function (e, ui) {
+                        panel.find('.scumdar-user-info').each(function (index) {
+                            $(this).data('user').order = index;
+                        });
+                        save(game);
+                    }
+                });
                 break;
             case 'scumdar-info-tabs-stars':
                 for (var i in game.posts) {
@@ -125,6 +154,7 @@ String.prototype.format = function () {
         this.name = name;
         this.points = 0;
         this.mark = 'unknown';
+        this.order = 0;
     };
 
     var Post = function (id, num, user) {
