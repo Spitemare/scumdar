@@ -1,7 +1,7 @@
 ﻿{
     "manifest_version": 2,
     "name": "Scumdar",
-    "version": "2.2",
+    "version": "3.0",
     "description": "Handy stuff for mafia on MTG Salvation",
     "permissions": [ "tabs", "storage" ],
     "icons": {
@@ -11,19 +11,30 @@
     },
     "content_scripts": [
         {
-            "js": [ "js/jquery-1.7.2.min.js", "js/jquery-ui-1.10.2.custom.min.js", "js/waypoints.min.js", "js/content.js" ],
-            "css": [ "css/jquery-ui-1.10.2.custom.min.css", "css/content.css" ],
+            "js": [ "js/jquery-1.9.1.min.js", "js/jquery-ui-1.10.2.custom.min.js", "js/waypoints-2.0.2.min.js", "js/scumdar.js" ],
+            "css": [ "css/jquery-ui-1.10.2.custom.css", "css/scumdar.css" ],
             "matches": [ "http://forums.mtgsalvation.com/*", "http://forums.mtgdarkness.com/*" ],
             "run_at": "document_start"
         }
     ],
+    "background" : {
+        "scripts": [ "js/update.js" ],
+        "persistent": false
+    },
     "web_accessible_resources": [
-        "img/star.png",
-        "img/unstar.png",
-        "img/plus.png",
-        "img/minus.png",
-        "img/pin.png",
-        "img/unpin.png",
-        "img/info.png"
+        "css/images/ui-icons_2e83ff_256x240.png",
+        "css/images/ui-bg_flat_75_ffffff_40x100.png",
+        "css/images/ui-bg_glass_75_e6e6e6_1x400.png",
+        "css/images/ui-icons_888888_256x240.png",
+        "css/images/ui-bg_glass_95_fef1ec_1x400.png",
+        "css/images/ui-bg_glass_75_dadada_1x400.png",
+        "css/images/ui-bg_glass_65_ffffff_1x400.png",
+        "css/images/ui-icons_222222_256x240.png",
+        "css/images/ui-icons_cd0a0a_256x240.png",
+        "css/images/ui-icons_454545_256x240.png",
+        "css/images/ui-bg_highlight-soft_75_cccccc_1x100.png",
+        "css/images/ui-bg_glass_55_fbf9ee_1x400.png",
+        "css/images/animated-overlay.gif",
+        "css/images/ui-bg_flat_0_aaaaaa_40x100.png"
     ]
 }

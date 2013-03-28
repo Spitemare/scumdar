@@ -1,0 +1,68 @@
+.scumdar-hidden {
+    display: none;
+}
+
+.scumdar-sticky {
+    position: fixed;
+    top: 0;
+    margin-right: 30px;
+    z-index: 100;
+}
+
+.scumdar-pointer {
+    cursor: pointer;
+}
+
+.scumdar-post-note {
+    float: left;
+    font-style: italic;
+    white-space: pre-wrap;
+}
+
+.scumdar-user-mark {
+    width: 115px;
+}
+
+.tcat.ui-state-active,
+.tcat.ui-state-default,
+.scumdar-post-star.ui-state-active,
+.scumdar-post-star.ui-state-default {
+    border: 0;
+}
+
+.scumdar-user-note-button .ui-button-text {
+    padding-top: 1em;
+}
+
+.scumdar-user-note-button .ui-button-icon-primary,
+.scumdar-post-note-button .ui-button-icon-primary {
+    left: 1em;
+}
+
+.scumdar-post-tools {
+    padding-top: 0;
+}
+
+.scumdar-post-note-button,
+.scumdar-user-note-button {
+    float: right;
+}
+
+.scumdar-info-note {
+    font-style: italic;
+    white-space: pre-wrap;
+}
+
+.scumdar-user-info-name {
+    font-weight: bold;
+}
+
+.scumdar-user-info-mark,
+.scumdar-post-info-num {
+    margin-left: 5px;
+    float: right;
+}
+
+.scumdar-user-info-points .ui-slider-handle {
+    display: none;
+}
