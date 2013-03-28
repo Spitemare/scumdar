@@ -215,7 +215,13 @@ String.prototype.format = function () {
                     }
                 },
                 open : function () {
-                    populatePanel($('#scumdar-info-tabs-users'), $(this).data('game'));
+                    var panel;
+                    switch ($('#scumdar-info-tabs').tabs('option', 'active')) {
+                        case 1: panel = 'stars'; break;
+                        case 2: panel = 'notes'; break;
+                        default: panel = 'users'; break;
+                    }
+                    populatePanel($('#scumdar-info-tabs-{0}'.format(panel)), $(this).data('game'));
                 },
                 close : function () {
                     $(this).removeData('game');
