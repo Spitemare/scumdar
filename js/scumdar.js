@@ -174,8 +174,8 @@ String.prototype.format = function () {
                     $('body').scumdar('dialogs');
                     $('#poststop ~ table').last().scumdar('controls', game);
                     $('table[id^="post"]').scumdar('posts', game);
-                    $('#lastpost').prev().scumdar('infinite');
                     $('.scumdar-tools').toggleClass('scumdar-hidden', !game.star);
+                    if (game.star) $('#lastpost').prev().scumdar('infinite');
                 });
             } else {
                 list(function (games) {
@@ -464,6 +464,7 @@ String.prototype.format = function () {
                     $this = $(this);
                     url = $this.attr('next') || $('div.pagenav td.alt2').next('td.alt1').find('a').attr('href');
                     if (!url) return;
+                    $('#lastpost').append('<div class="scumdar-loading"></div>');
                     $.ajax({
                         url : url,
                         dataType : 'html',
@@ -475,12 +476,13 @@ String.prototype.format = function () {
                             $p.find('table[id^="post"]').scumdar('posts', $('#scumdar').data('game'));
                             try { $('#posts').append($p); } catch (e) { }
                             $.waypoints('refresh');
-                            $('#scumdar').toggleClass('scumdar-sticky');
+                            $('#scumdar').toggleClass('scumdar-sticky', $('#scumdar').data('game').pin);
                             $q = $d.find('div.page').filter(':first');
                             next = $q.find('div.pagenav td.alt2').next('td.alt1').find('a').prop('href');
                             if (next) {
                                 $p.last().prev().attr('next', next).scumdar('infinite');
                             }
+                            $('#lastpost').filter(':first').remove();
                         }
                     });
                 }

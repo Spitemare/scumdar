@@ -35,6 +35,7 @@
         "css/images/ui-bg_highlight-soft_75_cccccc_1x100.png",
         "css/images/ui-bg_glass_55_fbf9ee_1x400.png",
         "css/images/animated-overlay.gif",
-        "css/images/ui-bg_flat_0_aaaaaa_40x100.png"
+        "css/images/ui-bg_flat_0_aaaaaa_40x100.png",
+        "img/loading.gif"
     ]
 }

@@ -67,3 +67,11 @@
 .scumdar-user-info-points .ui-slider-handle {
     display: none;
 }
+
+.scumdar-loading {
+    width: 220px;
+    height: 19px;
+    margin-left: auto;
+    margin-right: auto;
+    background: url(chrome-extension://__MSG_@@extension_id__/img/loading.gif) no-repeat;
+}
