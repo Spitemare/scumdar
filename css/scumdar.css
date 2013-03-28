@@ -80,3 +80,9 @@
     height: 100%;
     overflow: hidden;
 }
+
+.scumdar-textarea {
+    width: 98%;
+    height: 98%;
+    resize: none;
+}

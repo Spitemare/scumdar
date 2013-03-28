@@ -215,8 +215,8 @@ String.prototype.format = function () {
                         '<div id="scumdar-info-tabs-stars"></div>' +
                         '<div id="scumdar-info-tabs-notes"></div>' +
                     '</div>');
-            this.append('<div id="scumdar-user-note-dialog"><textarea style="width:98%;height:98%"></textarea></div>');
-            this.append('<div id="scumdar-post-note-dialog"><textarea style="width:98%;height:98%"></textarea></div>');
+            this.append('<div id="scumdar-user-note-dialog"><textarea class="scumdar-textarea"></textarea></div>');
+            this.append('<div id="scumdar-post-note-dialog"><textarea class="scumdar-textarea"></textarea></div>');
             $('#scumdar-unstar-dialog').dialog({
                 autoOpen : false,
                 resizable : false,
