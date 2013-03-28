@@ -317,6 +317,7 @@ String.prototype.format = function () {
                     '<span class="scumdar-pointer ui-icon ui-icon-pin-{0}"></span></td>'.format((game.pin ? 's' : 'w')))
                 .on('click.scumdar', function () {
                     game.pin = !game.pin;
+                    if (!game.pin) $('#scumdar').removeClass('scumdar-sticky');
                     $pin.find('span').toggleClass('ui-icon-pin-s ui-icon-pin-w');
                     save(game);
                 });
