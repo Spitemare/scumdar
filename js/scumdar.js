@@ -11,50 +11,83 @@ String.prototype.format = function () {
 
 (function ($, undefined) {
 
+    var port;
+
     function load(id, callback) {
-        chrome.storage.local.get(id, function (item) {
-            $.extend(this, item[id] || {
+        chrome.extension.sendMessage({
+            type : 'load',
+            game : id
+        }, function (item) {
+            var game = item[id] || {
                 id : id,
                 posts : {},
                 users : {},
                 star : false,
                 pin : true,
                 marks : [ 'unknown', 'town', 'scum', 'mod', 'replaced' ]
+            };
+            port = chrome.extension.connect({ name : id });
+            port.onMessage.addListener(function (g) {
+                var oldGame = $('#scumdar').data('game');
+                $('#scumdar').data('game', g);
+                if (!g.star) {
+                    location.reload();
+                } else if (g.star !== oldGame.star) {
+                    $('.scumdar-star').toggleClass('ui-state-active ui-state-default');
+                    $('#posts').last().prev().scumdar('infinite');
+                    $('.scumdar-tools').show();
+                }
+                if (g.pin !== oldGame.pin) {
+                    if (!g.pin) $('#scumdar').removeClass('scumdar-sticky');
+                    $('.scumdar-pin').find('span').toggleClass('ui-icon-pin-s ui-icon-pin-w');
+                }
+                for (var i in g.posts) {
+                    var post = g.posts[i],
+                        $post = $('.scumdar-post[post={0}]'.format(post.id));
+                    $post.data('post', post).find('.scumdar-post-note').text(post.note);
+                    if (post.star) {
+                        $post.find('.scumdar-post-star').removeClass('ui-state-default').addClass('ui-state-active');
+                    } else {
+                        $post.find('.scumdar-post-star').removeClass('ui-state-active').addClass('ui-state-default');
+                    }
+                }
+                for (var i in g.users) {
+                    var user = g.users[i];
+                    $('.scumdar-post[user={0}]'.format(user.id)).each(function (index, el) {
+                        $(el).data('user', user)
+                            .find('.scumdar-user-slider').slider('value', user.points)
+                            .find('.scumdar-user-mark').val(user.mark);
+                    });
+                }
             });
-            callback(this);
+            callback(game);
         });
     };
     
     function list(callback) {
-        chrome.storage.local.get(null, callback);
+        chrome.extension.sendMessage({
+            type : 'load',
+            game : null
+        }, function (items) {
+            callback(items);
+        });
     }
 
     function save(game, callback) {
-        for (var i in game.users) {
-            if (!game.users[i]) delete game.users[i];
-        }
-        for (var j in game.posts) {
-            if (!game.posts[i]) delete game.posts[i];
-        }
-        var o = {};
-        o[game.id] = game;
-        chrome.storage.local.set(o, function () {
-            if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError.message);
-            } else if (callback) {
-                callback(game);
-            }
+        chrome.extension.sendMessage({
+            type : 'save',
+            game : game
+        }, function (g) {
+            $('#scumdar').data('game', g);
+            if (callback) callback(g);
         });
     };
 
     function remove(game, callback) {
-        chrome.storage.local.remove(game.id, function () {
-            if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError.message);
-            } else if (callback) {
-                callback(game);
-            }
-        });
+        chrome.extension.sendMessage({
+            type : 'remove',
+            game : game
+        }, callback);
     };
 
     function linkPost(post, link) {
@@ -251,16 +284,15 @@ String.prototype.format = function () {
                         case 2: panel = 'notes'; break;
                         default: panel = 'users'; break;
                     }
-                    populatePanel($('#scumdar-info-tabs-{0}'.format(panel)), $(this).data('game'));
+                    populatePanel($('#scumdar-info-tabs-{0}'.format(panel)), $('#scumdar').data('game'));
                 },
                 close : function () {
-                    $(this).removeData('game');
                     $('body').removeClass('scumdar-frozen');
                 }
             });
             $('#scumdar-info-tabs').tabs({
                 beforeActivate : function (e, ui) {
-                    populatePanel(ui.newPanel, $('#scumdar-info-dialog').data('game'));
+                    populatePanel(ui.newPanel, $('#scumdar').data('game'));
                 }
             });
             $('#scumdar-user-note-dialog').dialog({
@@ -272,7 +304,7 @@ String.prototype.format = function () {
                 buttons : {
                     Save : function () {
                         var $this = $(this),
-                            game = $this.data('game'),
+                            game = $('#scumdar').data('game'),
                             user = $this.data('user');
                         user.note = $this.find('textarea').val();
                         game.users[user.id] = user;
@@ -291,7 +323,7 @@ String.prototype.format = function () {
                     $this.dialog('option', 'title', 'Notes on {0}'.format(user.name)).find('textarea').val(user.note);
                 },
                 close : function () {
-                    $(this).removeData('game').removeData('user');
+                    $(this).removeData('user');
                 }
             });
             $('#scumdar-post-note-dialog').dialog({
@@ -303,7 +335,7 @@ String.prototype.format = function () {
                 buttons : {
                     Save : function () {
                         var $this = $(this),
-                            game = $this.data('game'),
+                            game = $('#scumdar').data('game'),
                             post = $this.data('post');
                         post.note = $this.find('textarea').val();
                         game.posts[post.id] = post;
@@ -323,15 +355,16 @@ String.prototype.format = function () {
                     $this.dialog('option', 'title', 'Notes on Post {0}'.format(post.num)).find('textarea').val(post.note);
                 },
                 close : function () {
-                    $(this).removeData('game').removeData('post');
+                    $(this).removeData('post');
                 }
             });
             return this;
         },
         controls : function (game) {
-            var $star = $('<td class="tcat ' + (game.star ? 'ui-state-active' : 'ui-state-default') + '">' +
+            var $star = $('<td class="scumdar-star tcat ' + (game.star ? 'ui-state-active' : 'ui-state-default') + '">' +
                     '<span class="scumdar-pointer ui-icon ui-icon-star"></span></td>')
                 .on('click.scumdar', function () {
+                    var game = $('#scumdar').data('game');
                     if (!game.star) {
                         game.star = true;
                         save(game, function() {
@@ -344,9 +377,10 @@ String.prototype.format = function () {
                     }
                 });
 
-            var $pin = $('<td class="tcat scumdar-tools">' +
+            var $pin = $('<td class="tcat scumdar-tools scumdar-pin">' +
                     '<span class="scumdar-pointer ui-icon ui-icon-pin-{0}"></span></td>'.format((game.pin ? 's' : 'w')))
                 .on('click.scumdar', function () {
+                    var game = $('#scumdar').data('game');
                     game.pin = !game.pin;
                     if (!game.pin) $('#scumdar').removeClass('scumdar-sticky');
                     $pin.find('span').toggleClass('ui-icon-pin-s ui-icon-pin-w');
@@ -356,12 +390,13 @@ String.prototype.format = function () {
             var $info = $('<td class="tcat scumdar-tools">' +
                     '<span class="scumdar-pointer ui-icon ui-icon-info"></span></td>')
                 .on('click.scumdar', function () {
-                    $('#scumdar-info-dialog').data('game', game).dialog('open');
+                    $('#scumdar-info-dialog').dialog('open');
                 });
 
             this.find('tr').prepend($star, $pin, $info);
             return this.data('game', game).removeAttr('width').attr('id', 'scumdar').waypoint({
                 handler : function (direction) {
+                    var game = $('#scumdar').data('game');
                     $(this).toggleClass('scumdar-sticky', game.star && game.pin && direction === 'down');
                 }
             });
@@ -375,7 +410,7 @@ String.prototype.format = function () {
                     userId = $user.attr('href').gup('u'),
                     user = game.users[userId] || new User(userId, $user.text()),
                     post = game.posts[id] || new Post(id, num, user);
-                $post.attr('post', id).attr('user', userId).data('game', game).data('post', post).data('user', user);
+                $post.attr('post', id).attr('user', userId).data('post', post).data('user', user);
 
                 $post.find('tbody').filter(':first').append('<tr class="scumdar-tools">' +
                     '<td class="alt2"><div class="scumdar-user-slider"></div></td>' +
@@ -386,7 +421,7 @@ String.prototype.format = function () {
                     max : 5,
                     value : user.points,
                     stop : function (e, ui) {
-                        var game = $post.data('game'),
+                        var game = $('#scumdar').data('game'),
                             user = $post.data('user');
                         user.points = ui.value;
                         game.users[user.id] = user;
@@ -403,9 +438,9 @@ String.prototype.format = function () {
                         '<input class="scumdar-user-mark"></input>' + 
                     '</td></tr>');
                 $post.find('.scumdar-user-note-button').on('click.scumdar', function () {
-                    var game = $post.data('game'),
+                    var game = $('#scumdar').data('game'),
                         user = $post.data('user');
-                    $('#scumdar-user-note-dialog').data('game', game).data('user', user).dialog('open');
+                    $('#scumdar-user-note-dialog').data('user', user).dialog('open');
                 }).button({
                     icons : { primary : 'ui-icon-person' }
                 });
@@ -425,7 +460,7 @@ String.prototype.format = function () {
                     },
                     change : function (e, ui) {
                         if (!ui.item) return;
-                        var game = $post.data('game'),
+                        var game = $('#scumdar').data('game'),
                             user = $post.data('user'),
                             mark = ui.item.value;
                         if ($.inArray(mark, game.marks) === -1) game.marks.push(mark);
@@ -445,7 +480,7 @@ String.prototype.format = function () {
                         '</span>' +
                      '</td>');
                 $post.find('.scumdar-post-star').on('click.scumdar', function () {
-                    var game = $post.data('game'),
+                    var game = $('#scumdar').data('game'),
                         post = $post.data('post'),
                         $this = $(this);
                     post.star = !post.star;
@@ -455,9 +490,9 @@ String.prototype.format = function () {
                     });
                 });
                 $post.find('.scumdar-post-note-button').on('click.scumdar', function () {
-                    var game = $post.data('game'),
+                    var game = $('#scumdar').data('game'),
                         post = $post.data('post');
-                    $('#scumdar-post-note-dialog').data('game', game).data('post', post).dialog('open');
+                    $('#scumdar-post-note-dialog').data('post', post).dialog('open');
                 }).button({
                     icons : { primary : 'ui-icon-document' }
                 });
